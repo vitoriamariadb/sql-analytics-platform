@@ -70,9 +70,31 @@ CALL valida_dados('nome_tabela');
 
 ## Documentação
 
-Consulte `docs/catalogo_queries.md` para descrição detalhada de cada query, parâmetros e exemplos de uso.
+Documentação detalhada disponível em:
 
-Consulte `docs/fluxo_etl.md` para entender o fluxo de dados e dependências entre queries.
+- [Processos ETL](docs/processos_etl.md) - Arquitetura e fluxos ETL
+- [Catálogo de Queries](docs/catalogo_completo.md) - Referência completa de queries
+
+## Guia Rápido
+
+### Executar Dashboard Principal
+
+```sql
+\i queries/dashboards/kpis_principais.sql
+```
+
+### Executar Processo ETL Completo
+
+```bash
+./scripts/run_etl.sh
+```
+
+### Validar Dados
+
+```sql
+\i queries/validacao/validar_integridade.sql
+\i queries/validacao/validar_duplicatas.sql
+```
 
 ## Convenções
 
