@@ -1,51 +1,75 @@
--- ETL: Validações de Dados
--- Checks de qualidade de dados, constraints e consistência
+-- ETL: Validacoes de Dados
+-- Cria tabelas de controle de qualidade e registra resultados de validacao
 
-BEGIN;
+START TRANSACTION;
 
--- Validação 1: Dados duplicados
-CREATE TEMP TABLE duplicados AS
-SELECT campo_chave, COUNT(*) as ocorrencias
-FROM staging_dados
-GROUP BY campo_chave
-HAVING COUNT(*) > 1;
+-- Tabela de resultados de validacao
+CREATE TABLE IF NOT EXISTS resultados_validacao (
+    id_resultado INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_validacao VARCHAR(100) NOT NULL,
+    tabela_origem VARCHAR(100) NOT NULL,
+    registros_afetados INT DEFAULT 0,
+    data_validacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    detalhes TEXT,
+    INDEX idx_rv_tipo (tipo_validacao),
+    INDEX idx_rv_data (data_validacao),
+    INDEX idx_rv_tabela (tabela_origem)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Validação 2: Valores fora do range esperado
-CREATE TEMP TABLE valores_invalidos AS
-SELECT *
-FROM staging_dados
-WHERE valor < 0 OR valor > 999999;
+-- Tabela de registros rejeitados
+CREATE TABLE IF NOT EXISTS registros_rejeitados (
+    id_rejeicao INT AUTO_INCREMENT PRIMARY KEY,
+    tabela_origem VARCHAR(100) NOT NULL,
+    id_registro_original INT,
+    motivo_rejeicao VARCHAR(255),
+    data_rejeicao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_rr_tabela (tabela_origem),
+    INDEX idx_rr_data (data_rejeicao)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Validação 3: Datas inconsistentes
-CREATE TEMP TABLE datas_invalidas AS
-SELECT *
-FROM staging_dados
-WHERE data_registro > CURRENT_DATE
-   OR data_registro < '2010-01-01';
-
--- Validação 4: Campos obrigatórios nulos
-CREATE TEMP TABLE campos_nulos AS
-SELECT *
-FROM staging_dados
-WHERE campo_obrigatorio IS NULL;
-
--- Relatório de validações
+-- Validacao de vendas: registros com valor negativo ou nulo
+INSERT INTO resultados_validacao (tipo_validacao, tabela_origem, registros_afetados, detalhes)
 SELECT
-    'Duplicados' AS tipo_validacao,
-    COUNT(*) AS registros_afetados
-FROM duplicados
-UNION ALL
-SELECT 'Valores Inválidos', COUNT(*) FROM valores_invalidos
-UNION ALL
-SELECT 'Datas Inválidas', COUNT(*) FROM datas_invalidas
-UNION ALL
-SELECT 'Campos Nulos', COUNT(*) FROM campos_nulos;
+    'Valores Invalidos',
+    'vendas',
+    COUNT(*),
+    CONCAT('Registros com valor_total <= 0 ou nulo: ', COUNT(*))
+FROM vendas
+WHERE valor_total <= 0 OR valor_total IS NULL;
 
--- Remover registros inválidos
-DELETE FROM staging_dados
-WHERE campo_chave IN (SELECT campo_chave FROM duplicados)
-   OR id IN (SELECT id FROM valores_invalidos)
-   OR id IN (SELECT id FROM datas_invalidas)
-   OR id IN (SELECT id FROM campos_nulos);
+-- Validacao de vendas: datas futuras
+INSERT INTO resultados_validacao (tipo_validacao, tabela_origem, registros_afetados, detalhes)
+SELECT
+    'Datas Futuras',
+    'vendas',
+    COUNT(*),
+    CONCAT('Registros com data futura: ', COUNT(*))
+FROM vendas
+WHERE data_venda > CURDATE();
+
+-- Validacao de producao: quantidades invalidas
+INSERT INTO resultados_validacao (tipo_validacao, tabela_origem, registros_afetados, detalhes)
+SELECT
+    'Quantidades Invalidas',
+    'producao',
+    COUNT(*),
+    CONCAT('Registros com quantidade <= 0: ', COUNT(*))
+FROM producao
+WHERE quantidade_produzida <= 0;
+
+-- Registrar vendas rejeitadas
+INSERT INTO registros_rejeitados (tabela_origem, id_registro_original, motivo_rejeicao)
+SELECT
+    'vendas',
+    id_venda,
+    CASE
+        WHEN valor_total <= 0 OR valor_total IS NULL THEN 'Valor invalido'
+        WHEN data_venda > CURDATE() THEN 'Data futura'
+        ELSE 'Outro'
+    END
+FROM vendas
+WHERE valor_total <= 0
+   OR valor_total IS NULL
+   OR data_venda > CURDATE();
 
 COMMIT;

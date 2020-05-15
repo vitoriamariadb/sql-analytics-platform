@@ -1,27 +1,58 @@
--- Procedure: Atualizar Métricas
--- Atualiza métricas agregadas incrementalmente
+-- Procedure: Atualizar Metricas
+-- Recalcula metricas agregadas para um periodo especificado
 
-CREATE OR REPLACE PROCEDURE atualiza_metricas()
-LANGUAGE plpgsql
-AS $$
+DELIMITER //
+
+CREATE PROCEDURE proc_atualiza_metricas(
+    IN p_data_inicio DATE,
+    IN p_data_fim DATE
+)
 BEGIN
-    -- Atualizar view materializada de métricas
-    REFRESH MATERIALIZED VIEW CONCURRENTLY view_metricas_agregadas;
+    DECLARE v_registros_atualizados INT DEFAULT 0;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        INSERT INTO log_atualizacoes (tipo_atualizacao, data_execucao, status, detalhes)
+        VALUES ('refresh_metricas', NOW(), 'erro', 'Falha ao atualizar metricas');
+    END;
 
-    -- Atualizar view materializada de histórico
-    REFRESH MATERIALIZED VIEW CONCURRENTLY view_historico;
+    START TRANSACTION;
 
-    -- Registrar atualização
-    INSERT INTO log_atualizacoes (
-        tipo_atualizacao,
-        data_execucao,
-        status
-    ) VALUES (
+    -- Remover metricas antigas do periodo
+    DELETE FROM metricas
+    WHERE data BETWEEN p_data_inicio AND p_data_fim;
+
+    -- Recalcular metricas de vendas
+    INSERT INTO metricas (data, vendas, producao, qualidade)
+    SELECT
+        v.data_venda,
+        SUM(v.valor_total),
+        COALESCE((
+            SELECT SUM(p.quantidade_produzida)
+            FROM producao p
+            WHERE p.data_producao = v.data_venda
+        ), 0),
+        COALESCE((
+            SELECT AVG(q.nota_qualidade)
+            FROM controle_qualidade q
+            WHERE q.data_verificacao = v.data_venda
+        ), 0)
+    FROM vendas v
+    WHERE v.data_venda BETWEEN p_data_inicio AND p_data_fim
+    GROUP BY v.data_venda;
+
+    SET v_registros_atualizados = ROW_COUNT();
+
+    -- Registrar atualizacao
+    INSERT INTO log_atualizacoes (tipo_atualizacao, data_execucao, status, detalhes)
+    VALUES (
         'refresh_metricas',
-        CURRENT_TIMESTAMP,
-        'sucesso'
+        NOW(),
+        'sucesso',
+        CONCAT('Atualizados ', v_registros_atualizados, ' registros')
     );
 
-    RAISE NOTICE 'Métricas atualizadas com sucesso';
-END;
-$$;
+    COMMIT;
+END //
+
+DELIMITER ;
