@@ -25,3 +25,4 @@ SELECT
           NULLIF(LAG(valor_total, 12) OVER (ORDER BY mes), 0), 2) AS crescimento_anual
 FROM metricas_mensais
 ORDER BY mes DESC;
+
