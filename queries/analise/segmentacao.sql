@@ -35,3 +35,4 @@ GROUP BY
         ELSE 'Bronze'
     END
 ORDER BY receita_total DESC;
+
