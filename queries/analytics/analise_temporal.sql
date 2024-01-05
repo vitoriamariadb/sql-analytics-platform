@@ -36,3 +36,4 @@ SELECT
     END AS crescimento_percentual
 FROM comparativos
 ORDER BY mes DESC;
+
