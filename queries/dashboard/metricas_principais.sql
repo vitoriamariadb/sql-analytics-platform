@@ -13,3 +13,4 @@ FROM metricas m
 WHERE m.data >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
 GROUP BY DATE_FORMAT(m.data, '%Y-%m-%d')
 ORDER BY data_referencia DESC;
+
