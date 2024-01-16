@@ -34,3 +34,4 @@ SELECT
     minimo_transacoes,
     ROUND((receita_mes / transacoes_mes)::numeric, 2) AS receita_por_transacao
 FROM metricas_agregadas;
+
