@@ -11,3 +11,4 @@ FROM producao
 WHERE data_producao >= CURRENT_DATE - INTERVAL '30 days'
 GROUP BY DATE_TRUNC('day', data_producao)
 ORDER BY dia DESC;
+
