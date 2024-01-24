@@ -34,3 +34,4 @@ GROUP BY
         ELSE 'Bronze'
     END
 ORDER BY receita_segmento DESC;
+
