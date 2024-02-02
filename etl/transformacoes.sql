@@ -86,3 +86,4 @@ ON DUPLICATE KEY UPDATE
     produtividade = VALUES(produtividade);
 
 COMMIT;
+
