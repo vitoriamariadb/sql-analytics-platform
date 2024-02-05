@@ -73,3 +73,4 @@ WHERE valor_total <= 0
    OR data_venda > CURDATE();
 
 COMMIT;
+
