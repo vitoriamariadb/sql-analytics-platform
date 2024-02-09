@@ -105,3 +105,4 @@ def etl_dir() -> Path:
         Path: Caminho absoluto do diretorio etl/
     """
     return Path(__file__).parent.parent / "etl"
+
