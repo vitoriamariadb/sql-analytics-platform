@@ -137,3 +137,4 @@ def create_mock_connection(results: Optional[List[Tuple]] = None) -> MockConnect
         MockConnection: Conexao mockada configurada
     """
     return MockConnection(cursor_results=results)
+
