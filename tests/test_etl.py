@@ -138,3 +138,4 @@ class TestETLData:
             if has_transaction or has_commit:
                 assert has_transaction and has_commit, \
                     f"Script ETL {sql_file.name} deve ter transacao completa"
+
