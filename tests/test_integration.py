@@ -180,3 +180,4 @@ class TestEndToEndFlow:
                 assert len(content) > 0, f"Arquivo {sql_file.name} vazio"
             except Exception as e:
                 pytest.fail(f"Erro ao ler {sql_file.name}: {e}")
+
