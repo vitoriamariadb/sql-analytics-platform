@@ -145,3 +145,4 @@ class TestSegmentation:
 
             assert has_case, \
                 f"Query de segmentacao {sql_file.name} deve usar CASE WHEN"
+
