@@ -37,4 +37,3 @@ SELECT
 FROM metricas_por_grupo m
 JOIN media_geral g ON m.mes = g.mes
 ORDER BY m.mes DESC, m.total_valor DESC;
-
