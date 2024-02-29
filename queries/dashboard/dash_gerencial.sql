@@ -10,4 +10,3 @@ SELECT
 FROM processos
 WHERE data_inicio >= CURRENT_DATE - INTERVAL '30 days'
 GROUP BY departamento;
-
