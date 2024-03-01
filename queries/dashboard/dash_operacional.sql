@@ -12,4 +12,3 @@ SELECT
 FROM operacoes o
 WHERE o.data_operacao = CURDATE()
 GROUP BY o.data_operacao;
-
