@@ -11,4 +11,3 @@ FROM metricas
 WHERE data >= CURRENT_DATE - INTERVAL '30 days'
 GROUP BY data
 ORDER BY data DESC;
-
