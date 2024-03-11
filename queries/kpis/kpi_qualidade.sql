@@ -11,4 +11,3 @@ FROM controle_qualidade
 WHERE data_verificacao >= CURRENT_DATE - INTERVAL '7 days'
 GROUP BY categoria
 ORDER BY taxa_aprovacao DESC;
-
