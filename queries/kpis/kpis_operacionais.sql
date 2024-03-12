@@ -13,4 +13,3 @@ WHERE v.data_venda >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
     AND v.status = 'concluida'
 GROUP BY DATE_FORMAT(v.data_venda, '%Y-%m')
 ORDER BY periodo DESC;
-
