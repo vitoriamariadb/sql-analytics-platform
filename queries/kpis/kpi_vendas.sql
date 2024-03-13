@@ -11,4 +11,3 @@ FROM vendas
 WHERE data_venda >= CURRENT_DATE - INTERVAL '12 months'
 GROUP BY DATE_TRUNC('month', data_venda)
 ORDER BY mes DESC;
-
