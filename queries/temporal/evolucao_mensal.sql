@@ -18,4 +18,3 @@ GROUP BY
     YEAR(data_venda),
     MONTH(data_venda)
 ORDER BY mes DESC;
-
