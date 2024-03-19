@@ -17,4 +17,3 @@ WHERE data_operacao >= '2019-01-01';
 CREATE INDEX ON view_historico (data_operacao);
 CREATE INDEX ON view_historico (mes);
 CREATE INDEX ON view_historico (tipo_operacao);
-
