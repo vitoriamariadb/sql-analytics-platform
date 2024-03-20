@@ -16,4 +16,3 @@ WHERE data >= CURRENT_DATE - INTERVAL '90 days'
 GROUP BY DATE_TRUNC('day', data), departamento;
 
 CREATE UNIQUE INDEX ON view_metricas_agregadas (dia, departamento);
-
