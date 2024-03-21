@@ -107,4 +107,3 @@ FROM fonte_producao_historico
 WHERE data_producao >= '2019-01-01';
 
 COMMIT;
-
